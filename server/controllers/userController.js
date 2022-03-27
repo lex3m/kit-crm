@@ -157,3 +157,49 @@ exports.update = (req, res) => {
     );
   });
 };
+
+exports.delete = (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log("DB connection ID is " + connection.threadId);
+  
+      connection.query(
+        'UPDATE `user` SET `active` = "removed" WHERE `ID` =?',
+        [req.params.id],
+        (err, rows) => {
+          connection.release();
+  
+          if (!err) {
+            res.redirect('/');
+          } else {
+            console.log(err);
+          }
+  
+          console.log("User data: \n", rows);
+        }
+      );
+    });
+  };
+
+  exports.viewuser = (req, res) => {
+    pool.getConnection((err, connection) => {
+      if (err) throw err;
+      console.log("DB connection ID is " + connection.threadId);
+  
+      connection.query(
+        'SELECT * FROM `user` WHERE `active` != "removed" and `ID` =?',
+        [req.params.id],
+        (err, rows) => {
+          connection.release();
+  
+          if (!err) {
+            res.render("view-user", { rows });
+          } else {
+            console.log(err);
+          }
+  
+          console.log("User data: \n", rows);
+        }
+      );
+    });
+  };
